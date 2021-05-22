@@ -1,0 +1,509 @@
+﻿<Window x:Class="On_Screen_Keyboard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:On_Screen_Keyboard"
+        mc:Ignorable="d"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="On-Screen Keyboard" Height="450" Width="1150" Background="Black" KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+
+        <SolidColorBrush x:Key="KeyButtonBorder" Color="Black"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonNormalBackground" Color="#333333"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonNormalForeground" Color="White"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonHoverBackground" Color="LightGray"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonHoverForeground" Color="Black"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonSecondSymbolNormalForeground"  Color="Gray"></SolidColorBrush>
+
+        <SolidColorBrush x:Key="KeyButtonSelectedStateColor" Color="Orange"></SolidColorBrush>
+
+
+        <Thickness x:Key="KeyTextMargin">2</Thickness>
+
+        <ControlTemplate x:Key="SingleOperationKeyButtonTemplate" TargetType="local:SingleOperationKeyButton">
+            <Border x:Name="TopControl" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{StaticResource KeyButtonBorder}" Background ="{StaticResource ResourceKey=KeyButtonNormalBackground}">
+                <Viewbox  MaxWidth="80" MaxHeight="28" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource KeyTextMargin}">
+                    <TextBlock x:Name="TextBlock_1" TextWrapping="Wrap" Text="{TemplateBinding Content}" Foreground="{StaticResource KeyButtonNormalForeground}"/>
+                </Viewbox>
+            </Border>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="TopControl" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="TextBlock_1" Value="{StaticResource KeyButtonHoverForeground}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="StateKeyButtonTemplate" TargetType="local:StateKeyButton">
+            <Border x:Name="TopControl" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{StaticResource KeyButtonBorder}" Background="{StaticResource ResourceKey=KeyButtonNormalBackground}">
+                <Viewbox  MaxWidth="80" MaxHeight="28" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource KeyTextMargin}">
+                    <TextBlock x:Name="TextBlock_1" TextWrapping="Wrap" Text="{TemplateBinding Content}" Foreground="{StaticResource KeyButtonNormalForeground}"/>
+                </Viewbox>
+            </Border>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="Pressed" Value="True">
+                    <Setter TargetName="TopControl" Property="Background" Value="{StaticResource x:ResourceKey=KeyButtonSelectedStateColor}"></Setter>
+                </Trigger>
+
+                <Trigger Property="Pressed" Value="False">
+                    <Setter TargetName="TopControl" Property="Background" Value="{StaticResource ResourceKey=KeyButtonNormalBackground}"></Setter>
+                </Trigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="true"></Condition>
+                        <Condition Property="Pressed" Value="False"></Condition>
+                    </MultiTrigger.Conditions>
+
+                    <Setter Property="Background" TargetName="TopControl" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="TextBlock_1" Value="{StaticResource KeyButtonHoverForeground}"/>
+                </MultiTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="AlphabetKeyButtonTemplate" TargetType="local:AlphabetKeyButton">
+            <Border x:Name="TopControl" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{StaticResource KeyButtonBorder}" Background="{StaticResource ResourceKey=KeyButtonNormalBackground}">
+                <Viewbox  MaxWidth="80" MaxHeight="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource KeyTextMargin}">
+                    <TextBlock x:Name="TextBlock_1" TextWrapping="Wrap" Text="{TemplateBinding KeyLetterToShow}" Foreground="{StaticResource KeyButtonNormalForeground}"/>
+                </Viewbox>
+            </Border>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="TopControl" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="TextBlock_1" Value="{StaticResource KeyButtonHoverForeground}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="SymbolKeyButtonControlTemplate" TargetType="local:SymbolKeyButton">
+            <Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{StaticResource KeyButtonBorder}">
+                <Grid Background="{StaticResource ResourceKey=KeyButtonNormalBackground}"  x:Name="TopElement">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="3*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Row="0" Grid.Column="0"  MaxWidth="20" MaxHeight="40" Margin="{StaticResource KeyTextMargin}">
+                        <TextBlock x:Name="Text_1_TextBlock" TextWrapping="Wrap" Text="{TemplateBinding DefaultKey}"  Foreground="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    </Viewbox>
+
+                    <Viewbox Grid.Row="1" Grid.Column="1" MaxWidth="20" MaxHeight="40" Margin="{StaticResource KeyTextMargin}">
+                        <TextBlock x:Name="Text_2_TextBlock"  TextWrapping="Wrap" Text="{TemplateBinding ShiftPressedKey}" Foreground="{StaticResource KeyButtonNormalForeground}" />
+                    </Viewbox>
+                </Grid>
+            </Border>
+
+            <ControlTemplate.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="True"></Condition>
+                        <Condition Property="IsMouseOver" Value="False"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="Text_1_TextBlock" Value="{StaticResource KeyButtonNormalForeground}"/>
+                    <Setter Property="Foreground" TargetName="Text_2_TextBlock" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="False"></Condition>
+                        <Condition Property="IsMouseOver" Value="False"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="Text_1_TextBlock" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    <Setter Property="Foreground" TargetName="Text_2_TextBlock" Value="{StaticResource KeyButtonNormalForeground}"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="True"></Condition>
+                        <Condition Property="IsMouseOver" Value="True"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" TargetName="TopElement" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="Text_1_TextBlock" Value="{StaticResource KeyButtonHoverForeground}"/>
+                    <Setter Property="Foreground" TargetName="Text_2_TextBlock" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="False"></Condition>
+                        <Condition Property="IsMouseOver" Value="True"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" TargetName="TopElement" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="Text_1_TextBlock" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    <Setter Property="Foreground" TargetName="Text_2_TextBlock" Value="{StaticResource KeyButtonHoverForeground}"/>
+                </MultiTrigger>
+            </ControlTemplate.Triggers>
+
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="NumericKeyButtonTemplate" TargetType="local:NumericKeyButton">
+
+            <Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{StaticResource KeyButtonBorder}">
+                <Grid Background="{StaticResource ResourceKey=KeyButtonNormalBackground}" x:Name="TopElement">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="3*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Row="0" Grid.Column="0"  MaxWidth="20" MaxHeight="40"  Margin="{StaticResource KeyTextMargin}">
+                        <TextBlock x:Name="SpecialSymbolTextBox" TextWrapping="Wrap" Text="{TemplateBinding SpecialSymbol}" Foreground="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    </Viewbox>
+
+                    <Viewbox Grid.Row="1" Grid.Column="1" MaxWidth="20" MaxHeight="40"  Margin="{StaticResource KeyTextMargin}">
+                        <TextBlock x:Name="NumberTextBox" TextWrapping="Wrap" Text="{TemplateBinding NumberKey}" Foreground="{StaticResource KeyButtonNormalForeground}"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
+
+            <ControlTemplate.Triggers>
+
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="True" />
+                        <Condition Property="FnKeyPressed" Value="False" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="White"/>
+                    <Setter Property="Foreground" TargetName="NumberTextBox" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    <Setter Property="Text" TargetName="SpecialSymbolTextBox" Value="{Binding Path=SpecialSymbol,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                    <Setter Property="Text" TargetName="NumberTextBox" Value="{Binding Path=NumberKey,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="False" />
+                        <Condition Property="FnKeyPressed" Value="False" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    <Setter Property="Foreground" TargetName="NumberTextBox" Value="White"/>
+                    <Setter Property="Text" TargetName="SpecialSymbolTextBox" Value="{Binding Path=SpecialSymbol,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                    <Setter Property="Text" TargetName="NumberTextBox" Value="{Binding Path=NumberKey,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                </MultiTrigger>
+
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="True" />
+                        <Condition Property="FnKeyPressed" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="White"/>
+                    <Setter Property="Text" TargetName="SpecialSymbolTextBox" Value="{Binding Path=FunctionKey,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                    <Setter Property="Text" TargetName="NumberTextBox" Value=""></Setter>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="ShiftPressed" Value="False" />
+                        <Condition Property="FnKeyPressed" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="White"/>
+                    <Setter Property="Text" TargetName="SpecialSymbolTextBox" Value="{Binding Path=FunctionKey,  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NumericKeyButton}}"></Setter>
+                    <Setter Property="Text" TargetName="NumberTextBox" Value=""></Setter>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="ShiftPressed" Value="False" />
+                        <Condition Property="FnKeyPressed" Value="False" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" TargetName="TopElement" Value="{StaticResource KeyButtonHoverBackground}"/>
+
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                    <Setter Property="Foreground" TargetName="NumberTextBox" Value="{StaticResource KeyButtonHoverForeground}"/>
+                </MultiTrigger>
+
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="ShiftPressed" Value="True" />
+                        <Condition Property="FnKeyPressed" Value="False" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" TargetName="TopElement" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="{StaticResource KeyButtonHoverForeground}"/>
+                    <Setter Property="Foreground" TargetName="NumberTextBox" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                </MultiTrigger>
+
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" />
+                        <Condition Property="FnKeyPressed" Value="True" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" TargetName="TopElement" Value="{StaticResource KeyButtonHoverBackground}"/>
+                    <Setter Property="Foreground" TargetName="SpecialSymbolTextBox" Value="{StaticResource KeyButtonHoverForeground}"/>
+                    <Setter Property="Foreground" TargetName="NumberTextBox" Value="{StaticResource KeyButtonSecondSymbolNormalForeground}"/>
+                </MultiTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="8.5*"/>
+        </Grid.RowDefinitions>
+
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24*"/>
+                <ColumnDefinition Width="6*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Grid.Row="0" Margin="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <local:SingleOperationKeyButton x:Name="EscKeyButton" KeyCode = "{}{ESC}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0">Esc</local:SingleOperationKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_tilde"  Grid.Column="1" DefaultKey="~" ShiftPressedKey="`"  DefaultKeyCode="{}{~}" ShiftPressedKeyCode="`" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_1" Grid.Column="2" SpecialSymbol="!" SpecialSymbolCode="!" NumberKey="1" NumberKeyCode="1" FunctionKey ="F1 " FunctionKeyCode ="{}{F1}" Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_2" Grid.Column="3" SpecialSymbol="@" SpecialSymbolCode="@" NumberKey="2" NumberKeyCode="2" FunctionKey ="F2 " FunctionKeyCode ="{}{F2}"    Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_3" Grid.Column="4" SpecialSymbol="#" SpecialSymbolCode="#" NumberKey="3" NumberKeyCode="3" FunctionKey ="F3 " FunctionKeyCode ="{}{F3}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_4" Grid.Column="5" SpecialSymbol="$" SpecialSymbolCode="$" NumberKey="4" NumberKeyCode="4" FunctionKey ="F4 " FunctionKeyCode ="{}{F4}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_5" Grid.Column="6" SpecialSymbol="%" SpecialSymbolCode="{}{%}" NumberKey="5" NumberKeyCode="5" FunctionKey ="F5 " FunctionKeyCode ="{}{F5}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_6" Grid.Column="7" SpecialSymbol="^" SpecialSymbolCode="{}{^}" NumberKey="6" NumberKeyCode="6" FunctionKey ="F6 " FunctionKeyCode ="{}{F6}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_7" Grid.Column="8" SpecialSymbol="&amp;" SpecialSymbolCode="&amp;" NumberKey="7" NumberKeyCode="7" FunctionKey ="F7 " FunctionKeyCode ="{}{F7}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_8" Grid.Column="9" SpecialSymbol="*" SpecialSymbolCode="*" NumberKey="8" NumberKeyCode="8" FunctionKey ="F8 " FunctionKeyCode ="{}{F8}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_9" Grid.Column="10" SpecialSymbol="(" SpecialSymbolCode="{}{(}" NumberKey="9" NumberKeyCode="9" FunctionKey ="F9 " FunctionKeyCode ="{}{F9}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_0" Grid.Column="11" SpecialSymbol=")" SpecialSymbolCode="{}{)}" NumberKey="0" NumberKeyCode="0" FunctionKey ="F10" FunctionKeyCode ="{}{F10}"   Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_dash" Grid.Column="12" SpecialSymbol="_" SpecialSymbolCode="_" NumberKey="-" NumberKeyCode="-" FunctionKey ="F11"  FunctionKeyCode ="{}{F12}" Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+                        <local:NumericKeyButton x:Name="BtnNumberKey_plus" Grid.Column="13" SpecialSymbol="+" SpecialSymbolCode="{}{+}" NumberKey="=" NumberKeyCode="=" FunctionKey ="F12"  FunctionKeyCode ="{}{F13}" Template="{StaticResource NumericKeyButtonTemplate}"></local:NumericKeyButton>
+
+                        <local:SingleOperationKeyButton x:Name="BackKeyButton" KeyCode = "{}{BACKSPACE}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="14">Back</local:SingleOperationKeyButton>
+
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <local:SingleOperationKeyButton x:Name="TabKeyButton" KeyCode = "{}{TAB}" Grid.Column="0" Template="{StaticResource SingleOperationKeyButtonTemplate}" >Tab</local:SingleOperationKeyButton>
+
+                        <local:AlphabetKeyButton Grid.Column="1" x:Name ="ButtonAlphabetKey_q" Lowercase ="q" Uppercase="Q" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="2" x:Name ="ButtonAlphabetKey_w" Lowercase ="w" Uppercase="W" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="3" x:Name ="ButtonAlphabetKey_e" Lowercase ="e" Uppercase="E" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="4" x:Name ="ButtonAlphabetKey_r" Lowercase ="r" Uppercase="R" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="5" x:Name ="ButtonAlphabetKey_t" Lowercase ="t" Uppercase="T" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="6" x:Name ="ButtonAlphabetKey_y" Lowercase ="y" Uppercase="Y" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="7" x:Name ="ButtonAlphabetKey_u" Lowercase ="u" Uppercase="U" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="8" x:Name ="ButtonAlphabetKey_i" Lowercase ="i" Uppercase="I" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="9" x:Name ="ButtonAlphabetKey_o" Lowercase ="o" Uppercase="O" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="10" x:Name ="ButtonAlphabetKey_p" Lowercase ="p" Uppercase="P" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_sqBracketOpen"  Grid.Column="11" DefaultKey="{}{" ShiftPressedKey="[" DefaultKeyCode="{}{{}" ShiftPressedKeyCode="{}{[}" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_sqBracketClose" Grid.Column="12" DefaultKey="{}}" ShiftPressedKey="]" DefaultKeyCode="{}{}}" ShiftPressedKeyCode="{}{]}" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_backwardSlash" Grid.Column="13" DefaultKey="|" ShiftPressedKey="\" DefaultKeyCode="|" ShiftPressedKeyCode="\" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+
+                        <local:SingleOperationKeyButton x:Name="DelKeyButton" KeyCode = "{}{DELETE}"  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="14">Del</local:SingleOperationKeyButton>
+
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <local:StateKeyButton  x:Name="ButtonCapsLock" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="0" Click="CapsLock_Button_Click">Caps</local:StateKeyButton>
+
+                        <local:AlphabetKeyButton Grid.Column="1" x:Name ="ButtonAlphabetKey_a" Lowercase ="a" Uppercase="A" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="2" x:Name ="ButtonAlphabetKey_s" Lowercase ="s" Uppercase="S" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="3" x:Name ="ButtonAlphabetKey_d" Lowercase ="d" Uppercase="D" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="4" x:Name ="ButtonAlphabetKey_f" Lowercase ="f" Uppercase="F" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="5" x:Name ="ButtonAlphabetKey_g" Lowercase ="g" Uppercase="G" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="6" x:Name ="ButtonAlphabetKey_h" Lowercase ="h" Uppercase="H" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="7" x:Name ="ButtonAlphabetKey_j" Lowercase ="j" Uppercase="J" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="8" x:Name ="ButtonAlphabetKey_k" Lowercase ="k" Uppercase="K" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="9" x:Name ="ButtonAlphabetKey_l" Lowercase ="l" Uppercase="L" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_semiColon" Grid.Column="10" DefaultKey=":" ShiftPressedKey=";" DefaultKeyCode=":" ShiftPressedKeyCode=";" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_singleQuote" Grid.Column="11" DefaultKey="&quot;" ShiftPressedKey="&apos;" DefaultKeyCode="&quot;" ShiftPressedKeyCode="&apos;" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SingleOperationKeyButton x:Name="EnterKeyButton" KeyCode = "{}{ENTER}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="12">Enter</local:SingleOperationKeyButton>
+
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <local:StateKeyButton x:Name="ShiftLeftButton"  Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="0" Click="Shift_Button_Click">Shift</local:StateKeyButton>
+
+                        <local:AlphabetKeyButton Grid.Column="1" x:Name ="ButtonAlphabetKey_z" Lowercase ="z" Uppercase="Z" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="2" x:Name ="ButtonAlphabetKey_x" Lowercase ="x" Uppercase="X" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="3" x:Name ="ButtonAlphabetKey_c" Lowercase ="c" Uppercase="C" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="4" x:Name ="ButtonAlphabetKey_v" Lowercase ="v" Uppercase="V" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="5" x:Name ="ButtonAlphabetKey_b" Lowercase ="b" Uppercase="B" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="6" x:Name ="ButtonAlphabetKey_n" Lowercase ="n" Uppercase="N" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+                        <local:AlphabetKeyButton Grid.Column="7" x:Name ="ButtonAlphabetKey_m" Lowercase ="m" Uppercase="M" Template="{StaticResource AlphabetKeyButtonTemplate}"></local:AlphabetKeyButton>
+
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_comma" Grid.Column="8" DefaultKey="&lt;" ShiftPressedKey="," DefaultKeyCode="&lt;" ShiftPressedKeyCode="," Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_dot" Grid.Column="9" DefaultKey="&gt;" ShiftPressedKey="." DefaultKeyCode="&gt;" ShiftPressedKeyCode="." Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SymbolKeyButton x:Name="ButtonKey2s_forwardSlash" Grid.Column="10" DefaultKey="?" ShiftPressedKey="/" DefaultKeyCode="?" ShiftPressedKeyCode="/" Template="{StaticResource SymbolKeyButtonControlTemplate}"></local:SymbolKeyButton>
+                        <local:SingleOperationKeyButton x:Name="UpArrowButton" KeyCode="{}{UP}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="11">^</local:SingleOperationKeyButton>
+                        <local:StateKeyButton x:Name="ShiftRightButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="12" Click="Shift_Button_Click">Shift</local:StateKeyButton>
+
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="6*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <local:StateKeyButton x:Name="FnButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="0" Click="FnKey_Button_Click">Fn</local:StateKeyButton>
+                        <local:StateKeyButton x:Name="CtrlLeftButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="1" Click="Ctrl_Button_Click">Ctrl</local:StateKeyButton>
+                        <local:StateKeyButton x:Name="WindowsButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="2"  Click="WinKey_Button_Click">Win</local:StateKeyButton>
+                        <local:StateKeyButton x:Name="AltLeftButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="3" Click="Alt_Button_Click">Alt</local:StateKeyButton>
+
+                        <local:SingleOperationKeyButton x:Name="SpaceKeyButton" KeyCode=" " Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="4"></local:SingleOperationKeyButton>
+                        <local:StateKeyButton x:Name="AltRightButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="5" Click="Alt_Button_Click">Alt</local:StateKeyButton>
+                        <local:StateKeyButton x:Name="CtrlRightButton" Template="{StaticResource StateKeyButtonTemplate}" Grid.Column="6" Click="Ctrl_Button_Click">Ctrl</local:StateKeyButton>
+                        <local:SingleOperationKeyButton x:Name="LeftArrowButton" KeyCode="{}{LEFT}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="7">&lt;</local:SingleOperationKeyButton>
+                        <local:SingleOperationKeyButton x:Name="DownArrowButton" KeyCode="{}{DOWN}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="8">v</local:SingleOperationKeyButton>
+                        <local:SingleOperationKeyButton x:Name="RightArrowButton" KeyCode="{}{RIGHT}" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="9">&gt;</local:SingleOperationKeyButton>
+                        <local:SingleOperationKeyButton x:Name="ContextKeyButton" KeyCode="" Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="10"></local:SingleOperationKeyButton>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Column="1" Grid.Row="0" Margin="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0" Grid.Row="0"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0" Grid.Row="1"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0" Grid.Row="2"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0" Grid.Row="3"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="0" Grid.Row="4"></local:SingleOperationKeyButton>
+
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="1" Grid.Row="0"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="1" Grid.Row="1"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="1" Grid.Row="2"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="1" Grid.Row="3"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="1" Grid.Row="4"></local:SingleOperationKeyButton>
+
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="2" Grid.Row="0"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="2" Grid.Row="1"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="2" Grid.Row="2"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="2" Grid.Row="3"></local:SingleOperationKeyButton>
+                <local:SingleOperationKeyButton  Template="{StaticResource SingleOperationKeyButtonTemplate}" Grid.Column="2" Grid.Row="4"></local:SingleOperationKeyButton>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>
