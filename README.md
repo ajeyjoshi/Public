@@ -15,6 +15,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 -------------------------
 Win-10/On-Screen-Keyboard 
 -------------------------
-A application written in C# and WPF for Windows-10 OS. This application gives an On-Screen-Keyboard similar to the one avaialble in Windows-10.
+An application written in C# and WPF for Windows-10 OS. This application gives an On-Screen-Keyboard similar to the one avaialble in Windows-10.
 
-This was developed as an exploring/learning WPF so no way its fully tested and working.
+This was developed for the purpose of learning WPF so no way its fully tested and working.
